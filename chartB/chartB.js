@@ -31,7 +31,12 @@ function run() {
         // Y scale
         var y = d3.scaleRadial()
             .range([innerRadius, outerRadius])
-            .domain([0, 10000]); // Domain of Y is from 0 to the max seen in the data
+            .domain([0, 500]); // Domain of Y is from 0 to the max seen in the data
+
+        // Inner Y Scale
+        var innerYScale = d3.scaleRadial()
+            .range([innerRadius, 0])   // Domain will be defined later.
+            .domain([0, 100]);
 
         // Z scale for colors
         var z = d3.scaleOrdinal()
@@ -57,38 +62,23 @@ function run() {
 
 
         // Legend Object
-        var legend = g => g.append("g")
-            .selectAll("g")
-            .data(data.columns.slice(4,7).reverse())
-            .enter().append("g")
-            // try messing with translate to move it out so we can actually do stuff
-            .attr("transform", (d, i) => `translate(-150,${(i - (data.columns.slice(4,7).length - 1) / 2) * 20 })`)
-            .call(g => g.append("rect")
-                .attr("width", 18)
-                .attr("height", 18)
-                .attr("fill", z))
-            .call(g => g.append("text")
-                .attr("x", 24)
-                .attr("y", 9)
-                .attr("dy", "0.35em")
-                .style("font-size","10px")
-                .text(d => d));
+        // TODO:
 
-
-        // Add bars
+        // Add the first series
         svg.append("g")
-            .selectAll("g")
-            .data(d3.stack()
-               .keys(data.columns.slice(4,7))(data))
-            .enter().append("g")
-            .attr("fill", function(d){
-                return z(d.key);
-            })
             .selectAll("path")
-            .data(d => d)
+            .data(data)
             .enter()
             .append("path")
-            .attr("d", arc)
+            .attr("fill", "green")
+            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+                .innerRadius(innerRadius)
+                .outerRadius( function(d) {
+                    return y(d['Column1']); })
+                .startAngle(function(d) { return x(d.Country); })
+                .endAngle(function(d) { return x(d.Country) + x.bandwidth(); })
+                .padAngle(0.01)
+                .padRadius(innerRadius));
 
         // Add the labels
         svg.append("g")
@@ -99,17 +89,28 @@ function run() {
          .attr("text-anchor", function(d) { return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
          .attr("transform", function(d) {
              return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")"+"translate(" +
-             (( y(d["Neonatal mortality rate (per 1000 live births)"])+
-                 y(d["Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)"])+
-             y(d[ "Under-five mortality rate (probability of dying by age 5 per 1000 live births)"]) )/2+10) + ",0)"; })
+             (( y(d["Column1"]))+10) + ",0)"; })
          .append("text")
          .text(function(d){return(d.Country)})
          .attr("transform", function(d) { return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
          .style("font-size", "9px")
-         .attr("alignment-baseline", "middle")
+         .attr("alignment-baseline", "middle");
 
+        // Add the second series
         svg.append("g")
-            .call(legend);
+            .selectAll("path")
+            .data(data)
+            .enter()
+            .append("path")
+            .attr("fill", "red")
+            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+                .innerRadius( function(d) { return innerYScale(0) })
+                .outerRadius( function(d) {
+                    return innerYScale(d['Column2']); })
+                .startAngle(function(d) { return x(d.Country); })
+                .endAngle(function(d) { return x(d.Country) + x.bandwidth(); })
+                .padAngle(0.01)
+                .padRadius(innerRadius));
 
     });
 

@@ -1,6 +1,6 @@
 var margin = {top: 100, right: 0, bottom: 0, left: 0},
-    width = 460 - margin.left - margin.right,
-    height = 460 - margin.top - margin.bottom,
+    width = 900 - margin.left - margin.right,
+    height = 900 - margin.top - margin.bottom,
     innerRadius = 150,
     outerRadius = Math.min(width, height) / 2;   // the outerRadius goes from the middle of the SVG area to the border
 
@@ -31,35 +31,43 @@ function run() {
             .range([innerRadius, outerRadius])   // Domain will be define later.
             .domain([0, 10000]); // Domain of Y is from 0 to the max seen in the data
 
-        console.log(data.columns);
         // Z scale for colors
-
         var z = d3.scaleOrdinal()
-            .domain(data.columns.slice(1))
+            .domain(data.columns.slice(4,6))
             .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
+        // imagine your doing a part of a donut plot, arc object
+        var arc = d3.arc()
+            .innerRadius(innerRadius)
+            .outerRadius(function (d) {
+                console.log(d);
+                // Multiply by 250 to scale up the bars
+
+                //return y(d['Neonatal mortality rate (per 1000 live births)'] *50);
+                
+                return y(d[1])
+            })
+            .startAngle(function (d) {
+                return x(d.Country);
+            })
+            .endAngle(function (d) {
+                return x(d.Country) + x.bandwidth();
+            })
+            .padAngle(0.01)
+            .padRadius(innerRadius);
         // Add bars
         svg.append("g")
+            .selectAll("g")
+            .data(d3.stack()
+               .keys(data.columns.slice(4,6))(data))
+            .enter().append("g")
+            .attr("fill", d=>z(d.key))
             .selectAll("path")
             .data(data)
             .enter()
             .append("path")
-            .attr("fill", "#69b3a2")
-            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
-                .innerRadius(innerRadius)
-                .outerRadius(function (d) {
-                    console.log(d);
-                    // Multiply by 250 to scale up the bars
-                    return y(d['Neonatal mortality rate (per 1000 live births)'] *250);
-                })
-                .startAngle(function (d) {
-                    return x(d.Country);
-                })
-                .endAngle(function (d) {
-                    return x(d.Country) + x.bandwidth();
-                })
-                .padAngle(0.01)
-                .padRadius(innerRadius));
+            // .attr("fill", "#69b3a2")
+            .attr("d", arc);
 
         // Add the labels
         svg.append("g")
@@ -69,7 +77,7 @@ function run() {
             .append("g")
             .attr("text-anchor", function(d) { return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
             // NOTE THE Y VALUE IS ALSO SCALED UP HERE!
-            .attr("transform", function(d) { return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")"+"translate(" + (y(d['Neonatal mortality rate (per 1000 live births)'] *250)+10) + ",0)"; })
+            .attr("transform", function(d) { return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")"+"translate(" + (y(d['Neonatal mortality rate (per 1000 live births)'] *50)+5) + ",0)"; })
             .append("text")
             .text(function(d){return(d.Country)})
             .attr("transform", function(d) { return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })

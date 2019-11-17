@@ -13,12 +13,11 @@ var svg = d3.select("#my_dataviz")
     .attr("transform", "translate(" + (width / 2 + margin.left) + "," + (height / 2 + margin.top) + ")");
 
 
-
 window.onload = run();
 
 function run() {
 
-    d3.csv("../dataset.csv", function (data){
+    d3.csv("../dataset.csv", function (data) {
 
         // These variables are used to get the label positioning correct, we must pass around data objects of  the
         // position of the bars.
@@ -41,16 +40,16 @@ function run() {
 
         // Z scale for colors
         var z = d3.scaleOrdinal()
-            .domain(data.columns.slice(4,7))
+            .domain(data.columns.slice(4, 7))
             .range(["#c52028", "#a000a6", "#0b0488"]);
 
         // imagine your doing a part of a donut plot, arc object
         var arc = d3.arc()
-            .innerRadius(function(d) {
-                return y(d[0]*10)})
-            .outerRadius(function(d)
-            {
-                return y(d[1]*10);
+            .innerRadius(function (d) {
+                return y(d[0] * 10)
+            })
+            .outerRadius(function (d) {
+                return y(d[1] * 10);
             })
             .startAngle(function (d) {
                 return x(d.data.Country);
@@ -65,10 +64,10 @@ function run() {
         // Legend Object
         var legend = g => g.append("g")
             .selectAll("g")
-            .data(data.columns.slice(4,7).reverse())
+            .data(data.columns.slice(4, 7).reverse())
             .enter().append("g")
             // try messing with translate to move it out so we can actually do stuff
-            .attr("transform", (d, i) => `translate(-170,${(i - (data.columns.slice(4,7).length - 1) / 2) * 20 })`)
+            .attr("transform", (d, i) => `translate(-170,${(i - (data.columns.slice(4, 7).length - 1) / 2) * 20})`)
             .call(g => g.append("rect")
                 .attr("width", 18)
                 .attr("height", 18)
@@ -77,7 +76,7 @@ function run() {
                 .attr("x", 24)
                 .attr("y", 9)
                 .attr("dy", "0.35em")
-                .style("font-size","10px")
+                .style("font-size", "10px")
                 .style('fill', 'darkOrange')
                 .text(d => d));
 
@@ -86,16 +85,16 @@ function run() {
         svg.append("g")
             .selectAll("g")
             .data(d3.stack()
-               .keys(data.columns.slice(4,7))(data))
+                .keys(data.columns.slice(4, 7))(data))
             .enter().append("g")
-            .attr("fill", function(d){
+            .attr("fill", function (d) {
                 return z(d.key);
             })
             .selectAll("path")
-            .data(function(d)
-            {
-                if (d.key === "Under-five mortality rate (probability of dying by age 5 per 1000 live births)")
-                    {globalArr.push(d);}
+            .data(function (d) {
+                if (d.key === "Under-five mortality rate (probability of dying by age 5 per 1000 live births)") {
+                    globalArr.push(d);
+                }
                 return d;
             })
             .enter()
@@ -104,28 +103,35 @@ function run() {
 
         // Add the labels
         svg.append("g")
-         .selectAll("g")
-         .data(data)
-         .enter()
-         .append("g")
-         .attr("text-anchor", function(d) { return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
-         .attr("transform", function(d) {
+            .selectAll("g")
+            .data(data)
+            .enter()
+            .append("g")
+            .attr("text-anchor", function (d) {
+                return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start";
+            })
+            .attr("transform", function (d) {
 
-             if (holder === true) {
-                 globalArr = globalArr[0];
-                 holder = false;
-             }
-            i++;
-            var current = globalArr[i];
-             return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")"+"translate(" +
-             ( y(0)+10) + ",0)"; })
-    .append("text")
-         .text(function(d){return(d.Country)})
-         .attr("transform", function(d) { return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
-         .style("font-size", "10px")
-         .style("display","inline")
-         .style('fill', 'darkOrange')
-         .attr("alignment-baseline", "middle");
+                if (holder === true) {
+                    globalArr = globalArr[0];
+                    holder = false;
+                }
+                i++;
+                var current = globalArr[i];
+                return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")" + "translate(" +
+                    (y(0) + 10) + ",0)";
+            })
+            .append("text")
+            .text(function (d) {
+                return (d.Country)
+            })
+            .attr("transform", function (d) {
+                return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)";
+            })
+            .style("font-size", "10px")
+            .style("display", "inline")
+            .style('fill', 'darkOrange')
+            .attr("alignment-baseline", "middle");
 
         svg.append("g")
             .call(legend);

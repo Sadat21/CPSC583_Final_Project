@@ -8,3 +8,7 @@
     /*box-sizing: border-box;*/
     margin: auto;
 }
+
+text {
+    color: red;
+}

@@ -13,12 +13,11 @@ var svg = d3.select("#my_dataviz")
     .attr("transform", "translate(" + (width / 2 + margin.left) + "," + (height / 2 + margin.top) + ")");
 
 
-
 window.onload = run();
 
 function run() {
 
-    d3.csv("../dataset.csv", function (data){
+    d3.csv("../dataset.csv", function (data) {
 
         // X scale
         var x = d3.scaleBand()
@@ -40,16 +39,16 @@ function run() {
 
         // Z scale for colors
         var z = d3.scaleOrdinal()
-            .domain(data.columns.slice(4,7))
+            .domain(data.columns.slice(4, 7))
             .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
         // imagine your doing a part of a donut plot, arc object
         var arc = d3.arc()
-            .innerRadius(function(d) {
-                return y(d[0]*10)})
-            .outerRadius(function(d)
-            {
-                return y(d[1]*10);
+            .innerRadius(function (d) {
+                return y(d[0] * 10)
+            })
+            .outerRadius(function (d) {
+                return y(d[1] * 10);
             })
             .startAngle(function (d) {
                 return x(d.data.Country);
@@ -73,28 +72,40 @@ function run() {
             .attr("fill", "green")
             .attr("d", d3.arc()     // imagine your doing a part of a donut plot
                 .innerRadius(innerRadius)
-                .outerRadius( function(d) {
-                    return y(d['Column1']); })
-                .startAngle(function(d) { return x(d.Country); })
-                .endAngle(function(d) { return x(d.Country) + x.bandwidth(); })
+                .outerRadius(function (d) {
+                    return y(d['Column1']);
+                })
+                .startAngle(function (d) {
+                    return x(d.Country);
+                })
+                .endAngle(function (d) {
+                    return x(d.Country) + x.bandwidth();
+                })
                 .padAngle(0.01)
                 .padRadius(innerRadius));
 
         // Add the labels
         svg.append("g")
-         .selectAll("g")
-         .data(data)
-         .enter()
-         .append("g")
-         .attr("text-anchor", function(d) { return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
-         .attr("transform", function(d) {
-             return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")"+"translate(" +
-             (( y(d["Column1"]))+10) + ",0)"; })
-         .append("text")
-         .text(function(d){return(d.Country)})
-         .attr("transform", function(d) { return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
-         .style("font-size", "9px")
-         .attr("alignment-baseline", "middle");
+            .selectAll("g")
+            .data(data)
+            .enter()
+            .append("g")
+            .attr("text-anchor", function (d) {
+                return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start";
+            })
+            .attr("transform", function (d) {
+                return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")" + "translate(" +
+                    ((y(d["Column1"])) + 10) + ",0)";
+            })
+            .append("text")
+            .text(function (d) {
+                return (d.Country)
+            })
+            .attr("transform", function (d) {
+                return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)";
+            })
+            .style("font-size", "9px")
+            .attr("alignment-baseline", "middle");
 
         // Add the second series
         svg.append("g")
@@ -104,11 +115,18 @@ function run() {
             .append("path")
             .attr("fill", "red")
             .attr("d", d3.arc()     // imagine your doing a part of a donut plot
-                .innerRadius( function(d) { return innerYScale(0) })
-                .outerRadius( function(d) {
-                    return innerYScale(d['Column2']); })
-                .startAngle(function(d) { return x(d.Country); })
-                .endAngle(function(d) { return x(d.Country) + x.bandwidth(); })
+                .innerRadius(function (d) {
+                    return innerYScale(0)
+                })
+                .outerRadius(function (d) {
+                    return innerYScale(d['Column2']);
+                })
+                .startAngle(function (d) {
+                    return x(d.Country);
+                })
+                .endAngle(function (d) {
+                    return x(d.Country) + x.bandwidth();
+                })
                 .padAngle(0.01)
                 .padRadius(innerRadius));
 

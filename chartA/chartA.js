@@ -100,7 +100,9 @@ function run() {
             })
             .enter()
             .append("path")
-            .attr("d", arc);
+            .attr("d", arc)
+            .append("svg:title")
+            .text(function (d) {return d[1]-d[0];});   // display the size of each specific segment removing d3 scaling;
 
         // Add the labels
         svg.append("g")

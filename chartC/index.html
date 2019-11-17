@@ -1,13 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Chart C</title>
-        <link rel="stylesheet" type="text/css" href="style.css" />
-        <script src="../d3.v5-9-1.js"></script>
-    </head>
+<meta charset="utf-8">
 
-    <body>
+<head>
+    <link rel="stylesheet" href="../darkster.css"/>
+    <script src="https://d3js.org/d3.v4.js"></script>
 
-    </body>
-</html>
+    <!-- Function for radial charts -->
+    <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/d3-scale-radial.js"></script>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+
+<!-- Jumbotron -->
+<div class="jumbotron text-center" style="color:red; padding-bottom:2em; margin-bottom:0">
+    <h1 class="alert-heading"> Newborn Mortality Rates by Country </h1>
+    <br>
+    <h4 style="margin-bottom: 0; padding-bottom: 0"> Display: Something, IDK YET</h4>
+</div>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz" class="datadis"></div>
+<!-- SCRIPT GOES HERE!!! -->
+
+<!-- Navbar -->
+<nav class="navbar fixed-bottom navbar-expand-sm navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">CPSC583</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="../index.html">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">View-1</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../chartB/index.html">View-2</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../chartC/index.html">View-3</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="../chartD/index.html">View-4</a>
+            </li>
+        </ul>
+    </div>
+</nav>

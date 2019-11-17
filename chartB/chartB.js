@@ -69,7 +69,7 @@ function run() {
             .data(data)
             .enter()
             .append("path")
-            .attr("fill", "green")
+            .attr("fill", "#0b0488")
             .attr("d", d3.arc()     // imagine your doing a part of a donut plot
                 .innerRadius(innerRadius)
                 .outerRadius(function (d) {
@@ -105,6 +105,7 @@ function run() {
                 return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)";
             })
             .style("font-size", "9px")
+            .style('fill', 'darkOrange')
             .attr("alignment-baseline", "middle");
 
         // Add the second series
@@ -113,7 +114,7 @@ function run() {
             .data(data)
             .enter()
             .append("path")
-            .attr("fill", "red")
+            .attr("fill", "#a000a6")
             .attr("d", d3.arc()     // imagine your doing a part of a donut plot
                 .innerRadius(function (d) {
                     return innerYScale(0)

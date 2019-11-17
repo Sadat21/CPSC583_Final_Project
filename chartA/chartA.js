@@ -47,10 +47,10 @@ function run() {
         // imagine your doing a part of a donut plot, arc object
         var arc = d3.arc()
             .innerRadius(function(d) {
-                return y(d[0]*10)})
+                return y(d[0]*15)})
             .outerRadius(function(d)
             {
-                return y(d[1]*10);
+                return y(d[1]*15);
             })
             .startAngle(function (d) {
                 return x(d.data.Country);
@@ -118,17 +118,23 @@ function run() {
             i++;
             var current = globalArr[i];
              return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")"+"translate(" +
-             ( y(current[1]*10)+10) + ",0)"; })
+             ( y(current[1]*15)+10) + ",0)"; })
     .append("text")
          .text(function(d){return(d.Country)})
          .attr("transform", function(d) { return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
-         .style("font-size", "10px")
+         .style("font-size", "12px")
          .style("display","inline")
          .style('fill', 'darkOrange')
          .attr("alignment-baseline", "middle");
 
         svg.append("g")
             .call(legend);
+
+        /** If we need to source data!
+        svg.append("text")
+            .text("Source: ")
+            .style("fill","#009bff")
+         */
 
     });
 

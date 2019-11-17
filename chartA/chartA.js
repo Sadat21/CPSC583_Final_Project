@@ -1,4 +1,4 @@
-var margin = {top: 25, right: 0, bottom: 0, left: 0},
+var margin = {top: 0, right: 0, bottom: 0, left: 0},
     width = 1500 - margin.left - margin.right,
     height = 1500 - margin.top - margin.bottom,
     innerRadius = 250,

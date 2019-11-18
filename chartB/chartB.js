@@ -59,10 +59,6 @@ function run() {
             .padAngle(0.01)
             .padRadius(innerRadius);
 
-
-        // Legend Object
-        // TODO:
-
         // Add the first series
         svg.append("g")
             .selectAll("path")
@@ -134,6 +130,28 @@ function run() {
                 .padRadius(innerRadius))
             .append("svg:title")
             .text(function (d) {return d.Column2});
+
+        // Legend Object
+        var legend = g => g.append("g")
+            .selectAll("g")
+            .data([{text: "Boys mortality count per 1000", colour: "#0b0488"}, {text: "Girls mortality count per 1000", colour: "#a000a6"}])
+            .enter().append("g")
+            // try messing with translate to move it out so we can actually do stuff
+            .attr("transform", (d, i) => `translate(-60,${(i - (data.columns.slice(4,7).length - 1) / 2) * 20 })`)
+            .call(g => g.append("rect")
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("fill", d => d.colour))
+            .call(g => g.append("text")
+                .attr("x", 24)
+                .attr("y", 9)
+                .attr("dy", "0.35em")
+                .style("font-size","10px")
+                .style('fill', 'darkOrange')
+                .text(d => d.text));
+
+        svg.append("g")
+            .call(legend);
 
     });
 

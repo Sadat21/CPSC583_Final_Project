@@ -17,6 +17,19 @@ window.onload = run();
 function run() {
 
     d3.csv("../dataset.csv", function (data){
+
+        // Setup the size dynamically
+        function setup() {
+
+            // dynamically change our SVG container's dimensions with the current browser dimensions
+            width = svg.node().getBoundingClientRect().width != undefined ?
+                svg.node().getBoundingClientRect().width :
+                width;
+            height = svg.node().getBoundingClientRect().height != undefined ?
+                svg.node().getBoundingClientRect().height :
+                height;
+        }
+
         // X scale
         var x = d3.scaleBand()
             .range([0, 2 * Math.PI])    // X axis goes from 0 to 2pi = all around the circle. If I stop at 1Pi, it will be around a half circle
@@ -34,6 +47,11 @@ function run() {
         var z = d3.scaleOrdinal()
             .domain(data.columns.slice(4,7))
             .range(["#c52028", "#a000a6", "#0b0488"]);
+
+        var cntryColors = {
+            "More dev. region" : "#00c51b",
+            "Less dev. region" : "#c5000b",
+        }
 
         // imagine your doing a part of a donut plot, arc object
         var arc = d3.arc()
@@ -72,6 +90,12 @@ function run() {
                 .style('fill', 'darkOrange')
                 .text(d => d));
 
+
+        //////////////////////////////////////////////
+        // Application Method calls
+        /////////////////////////////////////////////
+
+        setup();
 
         // Under 5
         svg.append("g")
@@ -165,17 +189,41 @@ function run() {
                 return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)";
             })
             .style("font-size", "9px")
-            .style('fill', 'darkOrange')
+            .style('fill', d => cntryColors[d.Development_level])
+            //.style('fill', 'darkOrange')
             .attr("alignment-baseline", "middle");
+
+        var devLevel = [ "Highly Developed Region", "Low Developed Region"];
+        var colorArr = ["#00c51b", "#c5000b"]
+
+
+
+        var cntryLegends = g => g.append("g")
+            .selectAll("g")
+            .data(devLevel)
+            .enter().append("g")
+            // try messing with translate to move it out so we can actually do stuff
+            .attr("transform", (d, i) => `translate(-170,${(i *20 + 80)})`)
+            /*
+            .call(g => g.append("rect")
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("fill", "blue"))
+             */
+            .call(g => g.append("text")
+                .attr("x", 24)
+                .attr("y", 9)
+                .attr("dy", "0.35em")
+                .style("font-size","10px")
+                .style('fill', (d,i) => colorArr[i])
+                .text(d => d));
+
 
         svg.append("g")
             .call(legend);
 
-        /** If we need to source data!
-        svg.append("text")
-            .text("Source: ")
-            .style("fill","#009bff")
-         */
+        svg.append("g")
+            .call(cntryLegends);
 
     });
 

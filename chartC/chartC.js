@@ -17,6 +17,19 @@ window.onload = run();
 function run() {
 
     d3.csv("../dataset.csv", function (data){
+
+        // Setup the size dynamically
+        function setup() {
+
+            // dynamically change our SVG container's dimensions with the current browser dimensions
+            width = svg.node().getBoundingClientRect().width != undefined ?
+                svg.node().getBoundingClientRect().width :
+                width;
+            height = svg.node().getBoundingClientRect().height != undefined ?
+                svg.node().getBoundingClientRect().height :
+                height;
+        }
+
         // X scale
         var x = d3.scaleBand()
             .range([0, 2 * Math.PI])    // X axis goes from 0 to 2pi = all around the circle. If I stop at 1Pi, it will be around a half circle
@@ -72,6 +85,8 @@ function run() {
                 .style('fill', 'darkOrange')
                 .text(d => d));
 
+
+        setup();
 
         // Under 5
         svg.append("g")

@@ -82,7 +82,9 @@ function run() {
                     return x(d.Country) + x.bandwidth();
                 })
                 .padAngle(0.01)
-                .padRadius(innerRadius));
+                .padRadius(innerRadius))
+            .append("svg:title")
+            .text(function (d) {return d.Column1});
 
         // Add the labels
         svg.append("g")
@@ -129,7 +131,9 @@ function run() {
                     return x(d.Country) + x.bandwidth();
                 })
                 .padAngle(0.01)
-                .padRadius(innerRadius));
+                .padRadius(innerRadius))
+            .append("svg:title")
+            .text(function (d) {return d.Column2});
 
     });
 

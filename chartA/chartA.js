@@ -12,20 +12,11 @@ var svg = d3.select("#my_dataviz")
     .append("g")
     .attr("transform", "translate(" + (width / 2 + margin.left) + "," + (height / 2 + margin.top) + ")");
 
-
-
 window.onload = run();
 
 function run() {
 
     d3.csv("../dataset.csv", function (data){
-
-        // These variables are used to get the label positioning correct, we must pass around data objects of  the
-        // position of the bars.
-        var globalArr = [];
-        var i = -1;
-        var holder = true;
-
         // X scale
         var x = d3.scaleBand()
             .range([0, 2 * Math.PI])    // X axis goes from 0 to 2pi = all around the circle. If I stop at 1Pi, it will be around a half circle
@@ -37,7 +28,7 @@ function run() {
         // Y scale
         var y = d3.scaleRadial()
             .range([innerRadius, outerRadius])
-            .domain([0, 10000]); // Domain of Y is from 0 to the max seen in the data
+            .domain([0, 1000]); // Domain of Y is from 0 to the max seen in the data
 
         // Z scale for colors
         var z = d3.scaleOrdinal()
@@ -82,52 +73,100 @@ function run() {
                 .text(d => d));
 
 
-        // Add bars
+        // Under 5
         svg.append("g")
-            .selectAll("g")
-            .data(d3.stack()
-               .keys(data.columns.slice(4,7))(data))
-            .enter().append("g")
-            .attr("fill", function(d){
-                return z(d.key);
-            })
             .selectAll("path")
-            .data(function(d)
-            {
-                if (d.key === "Under-five mortality rate (probability of dying by age 5 per 1000 live births)")
-                    {globalArr.push(d);}
-                return d;
-            })
+            .data(data)
             .enter()
             .append("path")
-            .attr("d", arc)
+            .attr("fill", "#0b0488")
+            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+                .innerRadius(innerRadius)
+                .outerRadius(function (d) {
+                    return y(d['Under-five mortality rate (probability of dying by age 5 per 1000 live births)']);
+                })
+                .startAngle(function (d) {
+                    return x(d.Country);
+                })
+                .endAngle(function (d) {
+                    return x(d.Country) + x.bandwidth();
+                })
+                .padAngle(0.01)
+                .padRadius(innerRadius))
             .append("svg:title")
-            .text(function (d) {return d[1]-d[0];});   // display the size of each specific segment removing d3 scaling;
+            .text(function (d) {return d['Under-five mortality rate (probability of dying by age 5 per 1000 live births)'];});
+
+        // Under 1
+        svg.append("g")
+            .selectAll("path")
+            .data(data)
+            .enter()
+            .append("path")
+            .attr("fill", "#a000a6")
+            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+                .innerRadius(innerRadius)
+                .outerRadius(function (d) {
+                    return y(d['Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)']);
+                })
+                .startAngle(function (d) {
+                    return x(d.Country);
+                })
+                .endAngle(function (d) {
+                    return x(d.Country) + x.bandwidth();
+                })
+                .padAngle(0.01)
+                .padRadius(innerRadius))
+            .append("svg:title")
+            .text(function (d) {return d['Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)'];});
+
+        // Neonatal
+        svg.append("g")
+            .selectAll("path")
+            .data(data)
+            .enter()
+            .append("path")
+            .attr("fill", "#c52028")
+            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+                .innerRadius(innerRadius)
+                .outerRadius(function (d) {
+                    return y(d['Neonatal mortality rate (per 1000 live births)']);
+                })
+                .startAngle(function (d) {
+                    return x(d.Country);
+                })
+                .endAngle(function (d) {
+                    return x(d.Country) + x.bandwidth();
+                })
+                .padAngle(0.01)
+                .padRadius(innerRadius))
+            .append("svg:title")
+            .text(function (d) {
+                return d['Neonatal mortality rate (per 1000 live births)'];
+            });
 
         // Add the labels
         svg.append("g")
-         .selectAll("g")
-         .data(data)
-         .enter()
-         .append("g")
-         .attr("text-anchor", function(d) { return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
-         .attr("transform", function(d) {
-
-             if (holder === true) {
-                 globalArr = globalArr[0];
-                 holder = false;
-             }
-            i++;
-            var current = globalArr[i];
-             return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")"+"translate(" +
-             ( y(current[1]*15)+10) + ",0)"; })
-    .append("text")
-         .text(function(d){return(d.Country)})
-         .attr("transform", function(d) { return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
-         .style("font-size", "12px")
-         .style("display","inline")
-         .style('fill', 'darkOrange')
-         .attr("alignment-baseline", "middle");
+            .selectAll("g")
+            .data(data)
+            .enter()
+            .append("g")
+            .attr("text-anchor", function (d) {
+                return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start";
+            })
+            .attr("transform", function (d) {
+                return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")" + "translate(" +
+                    ((y(d["Column1"])) + 10) + ",0)";
+            })
+            .append("text")
+            .text(function (d) {
+                return (d.Country)
+            })
+            .attr("transform", function (d) {
+                return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)";
+            })
+            .style("font-size", "9px")
+            .style('fill', 'darkOrange')
+            .attr("alignment-baseline", "middle");
 
         svg.append("g")
             .call(legend);

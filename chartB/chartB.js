@@ -1,3 +1,12 @@
+/////////////////////
+//  Chart B - CPSC 583 - Sedat Islam & Ali Al-Khaz'Aly
+//  Double Circular Barplot
+//  This code was adapted from the online D3 tutorials sourced at :
+// https://www.d3-graph-gallery.com/circular_barplot.html?fbclid=IwAR1oYWzsSank3S_DRk3jjdPhx4hgD5imgMuvIUV_8t9NszwAOkq7jTLUiis
+//////////////////////
+
+
+// Create spacing variables
 var margin = {top: 0, right: 0, bottom: 0, left: 0},
     width = 1500 - margin.left - margin.right,
     height = 1500 - margin.top - margin.bottom,
@@ -54,35 +63,64 @@ function run() {
             .domain(data.columns.slice(4, 7))
             .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
-        // imagine your doing a part of a donut plot, arc object
-        var arc = d3.arc()
-            .innerRadius(function (d) {
-                return y(d[0] * 10)
-            })
-            .outerRadius(function (d) {
-                return y(d[1] * 10);
-            })
-            .startAngle(function (d) {
-                return x(d.data.Country);
-            })
-            .endAngle(function (d) {
-                return x(d.data.Country) + x.bandwidth();
-            })
-            .padAngle(0.01)
-            .padRadius(innerRadius);
-
         // Javascript dictionary for mapping region development to a specific color
         var cntryColors = {
             "More dev. region" : "#00c51b",
             "Less dev. region" : "#c5000b",
         };
+
+        // Arrays for easier access in legends parameter
         var devLevel = [ "Highly Developed Region", "Low Developed Region"];
         var colorArr = ["#00c51b", "#c5000b"]
 
 
-        // variable for holding the y value of the farthest down legend
+        // Y value of the farthest down legend from the 3 bar color legends
         var lowestLegend;
 
+
+        // Legend Object
+        var legend = g => g.append("g")
+            .selectAll("g")
+            .data([{text: "Boys mortality count per 1000", colour: "#0b0488"}, {text: "Girls mortality count per 1000", colour: "#a000a6"}])
+            .enter().append("g")
+            .attr("transform", function(d, i)
+            {
+                if (i === 1)
+                {lowestLegend = (i - (data.columns.slice(4,7).length - 1) / 2) * 20;}
+                return `translate(-60,${(i - (data.columns.slice(4,7).length - 1) / 2) * 20 })`;
+            } )
+            .call(g => g.append("rect")
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("fill", d => d.colour))
+            .call(g => g.append("text")
+                .attr("x", 24)
+                .attr("y", 9)
+                .attr("dy", "0.35em")
+                .style("font-size","10px")
+                .style('fill', 'darkOrange')
+                .text(d => d.text));
+
+        // Legend for the country names color
+        var cntryLegends = g => g.append("g")
+            .selectAll("g")
+            .data(devLevel)
+            .enter().append("g")
+            .attr("transform", (d, i) => `translate(-75,${lowestLegend + 75 + i * 15})`)
+            .call(g => g.append("text")
+                .attr("x", 24)
+                .attr("y", 9)
+                .attr("dy", "0.35em")
+                .style("font-size","10px")
+                .style('fill', (d,i) => colorArr[i])
+                .text(d => d));
+
+
+        //////////////////////////////////////////////
+        // Application Method calls
+        /////////////////////////////////////////////
+
+        // setup the width and height
         setup();
 
         // Add the first series
@@ -92,7 +130,8 @@ function run() {
             .enter()
             .append("path")
             .attr("fill", "#0b0488")
-            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+            .attr("d", d3.arc()
+            // Now draw the bars using the d3 arc object
                 .innerRadius(innerRadius)
                 .outerRadius(function (d) {
                     return y(d['Column1']);
@@ -105,7 +144,7 @@ function run() {
                 })
                 .padAngle(0.01)
                 .padRadius(innerRadius))
-            .append("svg:title")
+            .append("svg:title")    // Hovering reveals values
             .text(function (d) {return d.Column1});
 
         // Add the labels
@@ -118,6 +157,7 @@ function run() {
                 return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start";
             })
             .attr("transform", function (d) {
+                // draw the names using the x scale and circle logic for positioning
                 return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")" + "translate(" +
                     ((y(d["Column1"])) + 10) + ",0)";
             })
@@ -139,7 +179,8 @@ function run() {
             .enter()
             .append("path")
             .attr("fill", "#a000a6")
-            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+            .attr("d", d3.arc()
+            // Now draw the bars using the d3 arc object
                 .innerRadius(function (d) {
                     return innerYScale(0)
                 })
@@ -154,51 +195,12 @@ function run() {
                 })
                 .padAngle(0.01)
                 .padRadius(innerRadius))
-            .append("svg:title")
+            .append("svg:title")    // Hovering reveals values
             .text(function (d) {return d.Column2});
 
-        // Legend Object
-        var legend = g => g.append("g")
-            .selectAll("g")
-            .data([{text: "Boys mortality count per 1000", colour: "#0b0488"}, {text: "Girls mortality count per 1000", colour: "#a000a6"}])
-            .enter().append("g")
-            // try messing with translate to move it out so we can actually do stuff
-            .attr("transform", function(d, i)
-            {
-                if (i === 1)
-                {lowestLegend = (i - (data.columns.slice(4,7).length - 1) / 2) * 20;}
-                return `translate(-60,${(i - (data.columns.slice(4,7).length - 1) / 2) * 20 })`;
-            } )
-            .call(g => g.append("rect")
-                .attr("width", 18)
-                .attr("height", 18)
-                .attr("fill", d => d.colour))
-            .call(g => g.append("text")
-                .attr("x", 24)
-                .attr("y", 9)
-                .attr("dy", "0.35em")
-                .style("font-size","10px")
-                .style('fill', 'darkOrange')
-                .text(d => d.text));
-
-        var cntryLegends = g => g.append("g")
-            .selectAll("g")
-            .data(devLevel)
-            .enter().append("g")
-            // try messing with translate to move it out so we can actually do stuff
-            .attr("transform", (d, i) => `translate(-75,${lowestLegend + 75 + i * 15})`)
-            .call(g => g.append("text")
-                .attr("x", 24)
-                .attr("y", 9)
-                .attr("dy", "0.35em")
-                .style("font-size","10px")
-                .style('fill', (d,i) => colorArr[i])
-                .text(d => d));
-
-
+        // Create the legends
         svg.append("g")
             .call(legend);
-
         svg.append("g")
             .call(cntryLegends);
     });

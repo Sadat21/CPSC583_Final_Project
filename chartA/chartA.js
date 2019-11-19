@@ -1,3 +1,13 @@
+/////////////////////
+//  Chart A - CPSC 583 - Sedat Islam & Ali Al-Khaz'Aly
+//  Overlapping Circular Barplot
+//  This code was adapted from the online D3 tutorials sourced at :
+// https://www.d3-graph-gallery.com/circular_barplot.html?fbclid=IwAR1oYWzsSank3S_DRk3jjdPhx4hgD5imgMuvIUV_8t9NszwAOkq7jTLUiis
+//////////////////////
+
+
+
+// Create spacing variables
 var margin = {top: 0, right: 0, bottom: 0, left: 0},
     width = 1500 - margin.left - margin.right,
     height = 1500 - margin.top - margin.bottom,
@@ -14,6 +24,7 @@ var svg = d3.select("#my_dataviz")
 
 window.onload = run();
 
+// main entry point
 function run() {
 
     d3.csv("../dataset.csv", function (data){
@@ -48,38 +59,23 @@ function run() {
             .domain(data.columns.slice(4,7))
             .range(["#c52028", "#a000a6", "#0b0488"]);
 
+        // Javascript dictionary for mapping region development to a specific color
         var cntryColors = {
             "More dev. region" : "#00c51b",
             "Less dev. region" : "#c5000b",
         };
+        // Arrays for easier access in legends parameter
+        var devLevel = [ "Highly Developed Region", "Low Developed Region"];
+        var colorArr = ["#00c51b", "#c5000b"]
 
         // Gets the y value of the lowest legend so we can position our other legends accordingly
         var lowestLegend;
-
-        // imagine your doing a part of a donut plot, arc object
-        var arc = d3.arc()
-            .innerRadius(function(d) {
-                return y(d[0]*15)})
-            .outerRadius(function(d)
-            {
-                return y(d[1]*15);
-            })
-            .startAngle(function (d) {
-                return x(d.data.Country);
-            })
-            .endAngle(function (d) {
-                return x(d.data.Country) + x.bandwidth();
-            })
-            .padAngle(0.01)
-            .padRadius(innerRadius);
-
 
         // Legend Object
         var legend = g => g.append("g")
             .selectAll("g")
             .data(data.columns.slice(4,7).reverse())
             .enter().append("g")
-            // try messing with translate to move it out so we can actually do stuff
             .attr("transform", function(d, i)
             {
                 if (i === 2)
@@ -98,21 +94,37 @@ function run() {
                 .style('fill', 'darkOrange')
                 .text(d => d));
 
+        // Legend for the colors of country names
+        var cntryLegends = g => g.append("g")
+            .selectAll("g")
+            .data(devLevel)
+            .enter().append("g")
+            .attr("transform", (d, i) => `translate(-75,${lowestLegend + 75 + i * 15})`)
+            .call(g => g.append("text")
+                .attr("x", 24)
+                .attr("y", 9)
+                .attr("dy", "0.35em")
+                .style("font-size","10px")
+                .style('fill', (d,i) => colorArr[i])
+                .text(d => d));
+
 
         //////////////////////////////////////////////
         // Application Method calls
         /////////////////////////////////////////////
 
+        // setup the width and height
         setup();
 
-        // Under 5
+        // Under 5 mortality rate bars
         svg.append("g")
             .selectAll("path")
             .data(data)
             .enter()
             .append("path")
             .attr("fill", "#0b0488")
-            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+            .attr("d", d3.arc()
+                // Now draw the bars using the d3 arc object
                 .innerRadius(innerRadius)
                 .outerRadius(function (d) {
                     return y(d['Under-five mortality rate (probability of dying by age 5 per 1000 live births)']);
@@ -128,14 +140,15 @@ function run() {
             .append("svg:title")
             .text(function (d) {return d['Under-five mortality rate (probability of dying by age 5 per 1000 live births)'];});
 
-        // Under 1
+        // Under 1 infant mortality rate bars
         svg.append("g")
             .selectAll("path")
             .data(data)
             .enter()
             .append("path")
             .attr("fill", "#a000a6")
-            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+            .attr("d", d3.arc()
+            // Now draw the bars using the d3 arc object
                 .innerRadius(innerRadius)
                 .outerRadius(function (d) {
                     return y(d['Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)']);
@@ -158,7 +171,8 @@ function run() {
             .enter()
             .append("path")
             .attr("fill", "#c52028")
-            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+            .attr("d", d3.arc()
+            // Now draw the bars using the d3 arc object
                 .innerRadius(innerRadius)
                 .outerRadius(function (d) {
                     return y(d['Neonatal mortality rate (per 1000 live births)']);
@@ -176,7 +190,7 @@ function run() {
                 return d['Neonatal mortality rate (per 1000 live births)'];
             });
 
-        // Add the labels
+        // Add the country labels
         svg.append("g")
             .selectAll("g")
             .data(data)
@@ -186,6 +200,7 @@ function run() {
                 return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start";
             })
             .attr("transform", function (d) {
+                // draw the names using the x scale and circle logic for positioning
                 return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")" + "translate(" +
                     ((y(d["Column1"])) + 10) + ",0)";
             })
@@ -200,26 +215,7 @@ function run() {
             .style('fill', d => cntryColors[d.Development_level])
             .attr("alignment-baseline", "middle");
 
-        var devLevel = [ "Highly Developed Region", "Low Developed Region"];
-        var colorArr = ["#00c51b", "#c5000b"]
-
-
-
-        var cntryLegends = g => g.append("g")
-            .selectAll("g")
-            .data(devLevel)
-            .enter().append("g")
-            // try messing with translate to move it out so we can actually do stuff
-            .attr("transform", (d, i) => `translate(-75,${lowestLegend + 75 + i * 15})`)
-            .call(g => g.append("text")
-                .attr("x", 24)
-                .attr("y", 9)
-                .attr("dy", "0.35em")
-                .style("font-size","10px")
-                .style('fill', (d,i) => colorArr[i])
-                .text(d => d));
-
-
+        // Draw the legends
         svg.append("g")
             .call(legend);
 

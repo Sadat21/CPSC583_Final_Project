@@ -1,8 +1,16 @@
+/////////////////////
+//  Chart A - CPSC 583 - Sedat Islam & Ali Al-Khaz'Aly
+//  Inverted Overlapping Circular Barplot
+//  This code was adapted from the online D3 tutorials sourced at :
+// https://www.d3-graph-gallery.com/circular_barplot.html?fbclid=IwAR1oYWzsSank3S_DRk3jjdPhx4hgD5imgMuvIUV_8t9NszwAOkq7jTLUiis
+//////////////////////
+
+
+// Create spacing variables
 var margin = {top: 0, right: 0, bottom: 0, left: 0},
     width = 1500 - margin.left - margin.right,
     height = 1500 - margin.top - margin.bottom,
-    innerRadius = 250,
-    outerRadius = Math.min(width, height) / 2;   // the outerRadius goes from the middle of the SVG area to the border
+    innerRadius = 250;
 
 // append the svg object
 var svg = d3.select("#my_dataviz")
@@ -48,26 +56,8 @@ function run() {
             .domain(data.columns.slice(4,7))
             .range(["#c52028", "#a000a6", "#0b0488"]);
 
-        // Y value of the farthest down legend
+        // Y value of the farthest down legend from the 3 bar color legends
         var lowestLegend;
-
-        // imagine your doing a part of a donut plot, arc object
-        var arc = d3.arc()
-            .innerRadius(function(d) {
-                return y(d[0]*15)})
-            .outerRadius(function(d)
-            {
-                return y(d[1]*15);
-            })
-            .startAngle(function (d) {
-                return x(d.data.Country);
-            })
-            .endAngle(function (d) {
-                return x(d.data.Country) + x.bandwidth();
-            })
-            .padAngle(0.01)
-            .padRadius(innerRadius);
-
 
         // Legend Object
         var legend = g => g.append("g")
@@ -113,10 +103,15 @@ function run() {
             "More dev. region" : "#00c51b",
             "Less dev. region" : "#c5000b",
         };
+        // Arrays for easier access in legends parameter
         var devLevel = [ "Highly Developed Region", "Low Developed Region"];
         var colorArr = ["#00c51b", "#c5000b"]
 
+        //////////////////////////////////////////////
+        // Application Method calls
+        /////////////////////////////////////////////
 
+        // setup the width and height
         setup();
 
         // Under 5
@@ -126,7 +121,8 @@ function run() {
             .enter()
             .append("path")
             .attr("fill", "#0b0488")
-            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+            .attr("d", d3.arc()
+            // Now draw the bars using the d3 arc object
                 .innerRadius(y(0))
                 .outerRadius(function (d) {
                     return y(d['Under-five mortality rate (probability of dying by age 5 per 1000 live births)']);
@@ -139,7 +135,7 @@ function run() {
                 })
                 .padAngle(0.01)
                 .padRadius(innerRadius))
-            .append("svg:title")
+            .append("svg:title")    // Hovering reveals values
             .text(function (d) {return d['Under-five mortality rate (probability of dying by age 5 per 1000 live births)'];});
 
         // Under 1
@@ -149,7 +145,8 @@ function run() {
             .enter()
             .append("path")
             .attr("fill", "#a000a6")
-            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+            .attr("d", d3.arc()
+            // Now draw the bars using the d3 arc object
                 .innerRadius(y(0))
                 .outerRadius(function (d) {
                     return y(d['Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)']);
@@ -162,7 +159,7 @@ function run() {
                 })
                 .padAngle(0.01)
                 .padRadius(innerRadius))
-            .append("svg:title")
+            .append("svg:title")    // Hovering reveals values
             .text(function (d) {return d['Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)'];});
 
         // Neonatal
@@ -172,7 +169,8 @@ function run() {
             .enter()
             .append("path")
             .attr("fill", "#c52028")
-            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+            .attr("d", d3.arc()
+            // Now draw the bars using the d3 arc object
                 .innerRadius(y(0))
                 .outerRadius(function (d) {
                     return y(d['Neonatal mortality rate (per 1000 live births)']);
@@ -185,7 +183,7 @@ function run() {
                 })
                 .padAngle(0.01)
                 .padRadius(innerRadius))
-            .append("svg:title")
+            .append("svg:title")    // Hovering reveals values
             .text(function (d) {
                 return d['Neonatal mortality rate (per 1000 live births)'];
             });
@@ -200,6 +198,7 @@ function run() {
                 return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start";
             })
             .attr("transform", function (d) {
+                // draw the names using the x scale and circle logic for positioning
                 return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")" + "translate(" +
                     ((y(0)) + 10) + ",0)";
             })
@@ -214,17 +213,11 @@ function run() {
             .style('fill', d => cntryColors[d.Development_level])
             .attr("alignment-baseline", "middle");
 
+        // create the legends
         svg.append("g")
             .call(legend);
-
         svg.append("g")
             .call(cntryLegends);
-
-        /** If we need to source data!
-         svg.append("text")
-         .text("Source: ")
-         .style("fill","#009bff")
-         */
 
     });
 

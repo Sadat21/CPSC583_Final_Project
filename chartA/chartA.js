@@ -51,7 +51,10 @@ function run() {
         var cntryColors = {
             "More dev. region" : "#00c51b",
             "Less dev. region" : "#c5000b",
-        }
+        };
+
+        // Gets the y value of the lowest legend so we can position our other legends accordingly
+        var lowestLegend;
 
         // imagine your doing a part of a donut plot, arc object
         var arc = d3.arc()
@@ -77,7 +80,12 @@ function run() {
             .data(data.columns.slice(4,7).reverse())
             .enter().append("g")
             // try messing with translate to move it out so we can actually do stuff
-            .attr("transform", (d, i) => `translate(-170,${(i - (data.columns.slice(4,7).length - 1) / 2) * 20 })`)
+            .attr("transform", function(d, i)
+            {
+                if (i === 2)
+                {lowestLegend = (i - (data.columns.slice(4,7).length - 1) / 2) * 20;}
+                return `translate(-170,${(i - (data.columns.slice(4,7).length - 1) / 2) * 20 })`;
+            } )
             .call(g => g.append("rect")
                 .attr("width", 18)
                 .attr("height", 18)
@@ -190,7 +198,6 @@ function run() {
             })
             .style("font-size", "9px")
             .style('fill', d => cntryColors[d.Development_level])
-            //.style('fill', 'darkOrange')
             .attr("alignment-baseline", "middle");
 
         var devLevel = [ "Highly Developed Region", "Low Developed Region"];
@@ -203,13 +210,7 @@ function run() {
             .data(devLevel)
             .enter().append("g")
             // try messing with translate to move it out so we can actually do stuff
-            .attr("transform", (d, i) => `translate(-170,${(i *20 + 80)})`)
-            /*
-            .call(g => g.append("rect")
-                .attr("width", 18)
-                .attr("height", 18)
-                .attr("fill", "blue"))
-             */
+            .attr("transform", (d, i) => `translate(-75,${lowestLegend + 75 + i * 15})`)
             .call(g => g.append("text")
                 .attr("x", 24)
                 .attr("y", 9)

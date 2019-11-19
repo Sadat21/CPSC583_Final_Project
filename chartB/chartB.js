@@ -71,6 +71,18 @@ function run() {
             .padAngle(0.01)
             .padRadius(innerRadius);
 
+        // Javascript dictionary for mapping region development to a specific color
+        var cntryColors = {
+            "More dev. region" : "#00c51b",
+            "Less dev. region" : "#c5000b",
+        };
+        var devLevel = [ "Highly Developed Region", "Low Developed Region"];
+        var colorArr = ["#00c51b", "#c5000b"]
+
+
+        // variable for holding the y value of the farthest down legend
+        var lowestLegend;
+
         setup();
 
         // Add the first series
@@ -117,7 +129,7 @@ function run() {
                 return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)";
             })
             .style("font-size", "9px")
-            .style('fill', 'darkOrange')
+            .style('fill', d => cntryColors[d.Development_level])
             .attr("alignment-baseline", "middle");
 
         // Add the second series
@@ -151,7 +163,12 @@ function run() {
             .data([{text: "Boys mortality count per 1000", colour: "#0b0488"}, {text: "Girls mortality count per 1000", colour: "#a000a6"}])
             .enter().append("g")
             // try messing with translate to move it out so we can actually do stuff
-            .attr("transform", (d, i) => `translate(-60,${(i - (data.columns.slice(4,7).length - 1) / 2) * 20 })`)
+            .attr("transform", function(d, i)
+            {
+                if (i === 1)
+                {lowestLegend = (i - (data.columns.slice(4,7).length - 1) / 2) * 20;}
+                return `translate(-60,${(i - (data.columns.slice(4,7).length - 1) / 2) * 20 })`;
+            } )
             .call(g => g.append("rect")
                 .attr("width", 18)
                 .attr("height", 18)
@@ -164,9 +181,26 @@ function run() {
                 .style('fill', 'darkOrange')
                 .text(d => d.text));
 
+        var cntryLegends = g => g.append("g")
+            .selectAll("g")
+            .data(devLevel)
+            .enter().append("g")
+            // try messing with translate to move it out so we can actually do stuff
+            .attr("transform", (d, i) => `translate(-75,${lowestLegend + 75 + i * 15})`)
+            .call(g => g.append("text")
+                .attr("x", 24)
+                .attr("y", 9)
+                .attr("dy", "0.35em")
+                .style("font-size","10px")
+                .style('fill', (d,i) => colorArr[i])
+                .text(d => d));
+
+
         svg.append("g")
             .call(legend);
 
+        svg.append("g")
+            .call(cntryLegends);
     });
 
 

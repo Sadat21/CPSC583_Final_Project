@@ -105,7 +105,7 @@ function run() {
         };
         // Arrays for easier access in legends parameter
         var devLevel = [ "Highly Developed Region", "Low Developed Region"];
-        var colorArr = ["#00c51b", "#c5000b"]
+        var colorArr = [cntryColors["More dev. region"], cntryColors["Less dev. region"]];
 
         //////////////////////////////////////////////
         // Application Method calls
@@ -120,7 +120,7 @@ function run() {
             .data(data)
             .enter()
             .append("path")
-            .attr("fill", "#0b0488")
+            .attr("fill", z('Under-five mortality rate (probability of dying by age 5 per 1000 live births)'))
             .attr("d", d3.arc()
             // Now draw the bars using the d3 arc object
                 .innerRadius(y(0))
@@ -144,7 +144,7 @@ function run() {
             .data(data)
             .enter()
             .append("path")
-            .attr("fill", "#a000a6")
+            .attr("fill", z('Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)'))
             .attr("d", d3.arc()
             // Now draw the bars using the d3 arc object
                 .innerRadius(y(0))
@@ -168,7 +168,7 @@ function run() {
             .data(data)
             .enter()
             .append("path")
-            .attr("fill", "#c52028")
+            .attr("fill", z('Neonatal mortality rate (per 1000 live births)'))
             .attr("d", d3.arc()
             // Now draw the bars using the d3 arc object
                 .innerRadius(y(0))

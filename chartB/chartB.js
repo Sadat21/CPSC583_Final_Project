@@ -71,7 +71,7 @@ function run() {
 
         // Arrays for easier access in legends parameter
         var devLevel = [ "Highly Developed Region", "Low Developed Region"];
-        var colorArr = ["#00c51b", "#c5000b"]
+        var colorArr = [cntryColors["More dev. region"], cntryColors["Less dev. region"]];
 
 
         // Y value of the farthest down legend from the 3 bar color legends

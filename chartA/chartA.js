@@ -283,7 +283,12 @@ var margin = {top: 0, right: 0, bottom: 0, left: 0},
 
 // append the svg object
 var svg = d3.select("#my_dataviz")
+    .classed("svg-container", true)
     .append("svg")
+    // Responsive SVG needs these 2 attributes and no width and height attr.
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    // Class to make it responsive.
+    .classed("svg-content-responsive", true)
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")

@@ -362,7 +362,7 @@ function run() {
             {
                 if (i === 2)
                 {lowestLegend = (i - (data.columns.slice(4,7).length - 1) / 2) * 20;}
-                return `translate(${innerWidth/250000 - innerWidth/10},${(i - (data.columns.slice(4,7).length - 1) / 2) * 20 })`;
+                return `translate(${innerWidth/250000 - innerWidth/8},${(i - (data.columns.slice(4,7).length - 1) / 2) * 20 })`;
             } )
             .call(g => g.append("rect")
                 .attr("width", 18)
@@ -415,7 +415,7 @@ function run() {
                     return x(d.Country);
                 })
                 .endAngle(function (d) {
-                    return x(d.Country) + x.bandwidth();
+                    return x(d.Country) + x.bandwidth() + 0.001;
                 })
                 .padAngle(0.01)
                 .padRadius(innerRadius))
@@ -439,7 +439,7 @@ function run() {
                     return x(d.Country);
                 })
                 .endAngle(function (d) {
-                    return x(d.Country) + x.bandwidth() - 0.003;
+                    return x(d.Country) + x.bandwidth() - 0.005;
                 })
                 .padAngle(0.01)
                 .padRadius(innerRadius))

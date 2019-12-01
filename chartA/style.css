@@ -4,11 +4,13 @@ text{
 .datadis
  {
      position: relative;
-     display: inline-block;
+     display: flex;
      left: 50%;
-     top: 25%;
+     top: 100%;
      -webkit-transform: translate(-50%, -50%);
      transform: translate(-50%, -50%);
     padding-top: 55%;
+    flex:auto;
+    justify-content: center;
 
  }

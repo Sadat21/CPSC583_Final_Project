@@ -54,7 +54,7 @@ function run() {
         // Z scale for colors
         var z = d3.scaleOrdinal()
             .domain(data.columns.slice(4,7))
-            .range(["#c52028", "#a000a6", "#0b0488"]);
+            .range(["#e0d200", "#bc5090", "#003f5c"]);
 
         // Y value of the farthest down legend from the 3 bar color legends
         var lowestLegend;
@@ -100,7 +100,7 @@ function run() {
 
         // Javascript dictionary for mapping region development to a specific color
         var cntryColors = {
-            "More dev. region" : "#00c51b",
+            "More dev. region" : "#00c0ff",
             "Less dev. region" : "#c5000b",
         };
         // Arrays for easier access in legends parameter

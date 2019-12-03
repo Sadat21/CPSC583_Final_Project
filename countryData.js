@@ -1,3 +1,5 @@
+// Source: https://gist.github.com/maephisto/9228207
+
 var iso2to3 =
     {
     "AF": "AFG",
@@ -258,7 +260,6 @@ function getiso3 (countryISO2) {
         return countryISO2;
     }
 }
-// Source: https://gist.github.com/maephisto/9228207
 var isoCountries = {
     'Afghanistan': 'AF',
     'Aland Islands': 'AX',

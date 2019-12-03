@@ -14,3 +14,13 @@ text{
     justify-content: center;
 
  }
+.tooltip
+{
+    white-space: pre-wrap;          /* For the tooltip newlines */
+    position: absolute;
+    text-align: center;
+    pointer-events: none;
+    color: white;
+
+}
+

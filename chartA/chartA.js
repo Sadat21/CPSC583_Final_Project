@@ -29,12 +29,73 @@ var svg = d3.select("#my_dataviz")
     .append("g")
     .attr("transform", "translate(" + (width / 2 + margin.left) + "," + (height / 2 + margin.top) + ")");
 
+var xScale;
+var yScale;
+var zScale;
 
+// Columns for the mortality rates
+const mortality_columns = ["Neonatal mortality rate (per 1000 live births)",
+    "Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)",
+    "Under-five mortality rate (probability of dying by age 5 per 1000 live births)"];
+
+// Javascript dictionary for mapping region development to a specific color
+const cntryColors = {
+    "More dev. region" : "#00c0ff",
+    "Less dev. region" : "#c4001a",
+};
+// Arrays for easier access in legends parameter
+const devLevel = [ "Highly Developed Region", "Low Developed Region"];
+const colorArr = [cntryColors["More dev. region"], cntryColors["Less dev. region"]];
+
+
+var global_data;
 
 /**
  * Application Entry Point
  */
 window.onload = run();
+
+function updateDataSortMethod(orderingMethod) {
+    switch (orderingMethod) {
+        case "alphabetical":
+            global_data.sort((a, b) => a.Country.localeCompare(b.Country));
+            break;
+        case "child_mortality_rate":
+            global_data.sort((a, b) =>
+                b['Under-five mortality rate (probability of dying by age 5 per 1000 live births)']
+                - a['Under-five mortality rate (probability of dying by age 5 per 1000 live births)']);
+            break;
+        case "infant_mortality_rate":
+            global_data.sort((a, b) =>
+                b['Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)']
+                - a['Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)']);
+            break;
+        case "neonatal_mortality_rate":
+            global_data.sort((a, b) =>
+                b['Neonatal mortality rate (per 1000 live births)']
+                - a['Neonatal mortality rate (per 1000 live births)']);
+            break;
+        case "development":
+            global_data.sort((a, b) => a['Development_level'].localeCompare(b['Development_level']));
+            break;
+        case "region":
+            global_data.sort((a, b) => a.Region.localeCompare(b.Region));
+            break;
+        default:
+            global_data.sort((a, b) => a.Country.localeCompare(b.Country));
+    }
+
+    // Remove old bars
+    svg.selectAll("path")
+        .remove()
+        .exit();
+
+    // Remove old labels
+    svg.selectAll("#country_legend").remove().exit();
+
+    // Draw new Bars and Labels
+    drawBarsAndLabels(global_data)
+}
 
 // main entry point
 function run() {
@@ -53,6 +114,9 @@ function run() {
                 height;
         }
 
+        // Clean data
+        data = data.filter(d => d.Country !== "");
+
         // We will add the abbreviation field for each country
         data.forEach(function(d)
         {
@@ -63,51 +127,29 @@ function run() {
             }
         });
 
-        // X scale
-        var x = d3.scaleBand()
-            .range([0, 2 * Math.PI])    // X axis goes from 0 to 2pi = all around the circle. If I stop at 1Pi, it will be around a half circle
-            .align(0)                  // This does nothing ?
-            .domain(data.map(function (d) {
-                return d.Country;
-            })); // The domain of the X axis is the list of states.
+        global_data = data;
 
-        // Y scale
-        var y = d3.scaleRadial()
-            .range([innerRadius, outerRadius])
-            .domain([0, 1000]); // Domain of Y is from 0 to the max seen in the data
-
-        // Z scale for colors
-        var z = d3.scaleOrdinal()
-            .domain(data.columns.slice(4,7))
-            .range(["#e0d200", "#bc5090", "#003f5c"]);
-
-        // Javascript dictionary for mapping region development to a specific color
-        var cntryColors = {
-            "More dev. region" : "#00c0ff",
-            "Less dev. region" : "#c4001a",
-        };
-        // Arrays for easier access in legends parameter
-        var devLevel = [ "Highly Developed Region", "Low Developed Region"];
-        var colorArr = [cntryColors["More dev. region"], cntryColors["Less dev. region"]];
+        // Draw Bars
+        drawBarsAndLabels(data);
 
         // Gets the y value of the lowest legend so we can position our other legends accordingly
         var lowestLegend;
 
         // Legend Object
-        var legend = g => g.append("g")
+        const legend = g => g.append("g")
             .selectAll("g")
-            .data(data.columns.slice(4,7).reverse())
+            .data(mortality_columns.slice().reverse())
             .enter().append("g")
             .attr("transform", function(d, i)
             {
                 if (i === 2)
-                {lowestLegend = (i - (data.columns.slice(4,7).length - 1) / 2) * 20;}
-                return `translate(${innerWidth/250000 - innerWidth/8},${(i - (data.columns.slice(4,7).length - 1) / 2) * 20 })`;
+                {lowestLegend = (i - (mortality_columns.length - 1) / 2) * 20;}
+                return `translate(${innerWidth/250000 - innerWidth/8},${(i - (mortality_columns.length - 1) / 2) * 20 })`;
             } )
             .call(g => g.append("rect")
                 .attr("width", 18)
                 .attr("height", 18)
-                .attr("fill", z))
+                .attr("fill", zScale))
             .call(g => g.append("text")
                 .attr("x", 24)
                 .attr("y", 9)
@@ -138,105 +180,6 @@ function run() {
         // setup the width and height
         setup();
 
-        // Under 5 mortality rate bars
-        svg.append("g")
-            .selectAll("path")
-            .data(data)
-            .enter()
-            .append("path")
-            .attr("fill", z('Under-five mortality rate (probability of dying by age 5 per 1000 live births)'))
-            .attr("d", d3.arc()
-                // Now draw the bars using the d3 arc object
-                .innerRadius(innerRadius)
-                .outerRadius(function (d) {
-                    return y(d['Under-five mortality rate (probability of dying by age 5 per 1000 live births)']);
-                })
-                .startAngle(function (d) {
-                    return x(d.Country);
-                })
-                .endAngle(function (d) {
-                    return x(d.Country) + x.bandwidth() + 0.001;
-                })
-                .padAngle(0.01)
-                .padRadius(innerRadius))
-            .append("svg:title")
-            .text(function (d) {return d['Under-five mortality rate (probability of dying by age 5 per 1000 live births)'];});
-
-        // Under 1 infant mortality rate bars
-        svg.append("g")
-            .selectAll("path")
-            .data(data)
-            .enter()
-            .append("path")
-            .attr("fill", z('Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)'))
-            .attr("d", d3.arc()
-            // Now draw the bars using the d3 arc object
-                .innerRadius(innerRadius)
-                .outerRadius(function (d) {
-                    return y(d['Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)']);
-                })
-                .startAngle(function (d) {
-                    return x(d.Country);
-                })
-                .endAngle(function (d) {
-                    return x(d.Country) + x.bandwidth() - 0.008;
-                })
-                .padAngle(0.01)
-                .padRadius(innerRadius))
-            .append("svg:title")
-            .text(function (d) {return d['Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)'];});
-
-        // Neonatal
-        svg.append("g")
-            .selectAll("path")
-            .data(data)
-            .enter()
-            .append("path")
-            .attr("fill", z('Neonatal mortality rate (per 1000 live births)'))
-            .attr("d", d3.arc()
-            // Now draw the bars using the d3 arc object
-                .innerRadius(innerRadius)
-                .outerRadius(function (d) {
-                    return y(d['Neonatal mortality rate (per 1000 live births)']);
-                })
-                .startAngle(function (d) {
-                    return x(d.Country);
-                })
-                .endAngle(function (d) {
-                    return x(d.Country) + x.bandwidth() - 0.015;
-                })
-                .padAngle(0.01)
-                .padRadius(innerRadius))
-            .append("svg:title")
-            .text(function (d) {
-                return d['Neonatal mortality rate (per 1000 live births)'];
-            });
-
-        // Add the country labels
-        svg.append("g")
-            .selectAll("g")
-            .data(data)
-            .enter()
-            .append("g")
-            .attr("text-anchor", function (d) {
-                return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start";
-            })
-            .attr("transform", function (d) {
-                // draw the names using the x scale and circle logic for positioning
-                return "rotate(" + ((x(d.Country) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")" + "translate(" +
-                    innerRadius *0.92 + ",0)";
-            })
-            .append("text")
-            .text(function (d) {
-                return (d.Abbreviation)
-            })
-            .attr("transform", function (d) {
-                return (x(d.Country) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)";
-            })
-            .style("font-size", "9px")
-            .style('fill', d => cntryColors[d.Development_level])
-            .attr("alignment-baseline", "middle");
-
         // Draw the legends
         svg.append("g")
             .call(legend);
@@ -252,4 +195,124 @@ function run() {
 
     }
 
+}
+
+function drawBarsAndLabels(myData) {
+    // X scale
+    xScale = d3.scaleBand()
+        .range([0, 2 * Math.PI])    // X axis goes from 0 to 2pi = all around the circle. If I stop at 1Pi, it will be around a half circle
+        .align(0)                  // This does nothing ?
+        .domain(myData.map(function (d) {
+            return d.Country;
+        })); // The domain of the X axis is the list of states.
+
+    // Y scale
+    yScale = d3.scaleRadial()
+        .range([innerRadius, outerRadius])
+        .domain([0, 1000]); // Domain of Y is from 0 to the max seen in the data
+
+    // Z scale for colors
+    zScale = d3.scaleOrdinal()
+        .domain(mortality_columns)
+        .range(["#e0d200", "#bc5090", "#003f5c"]);
+
+    // Under 5 mortality rate bars
+    svg.append("g")
+        .selectAll("path")
+        .data(myData)
+        .enter()
+        .append("path")
+        .attr("fill", zScale('Under-five mortality rate (probability of dying by age 5 per 1000 live births)'))
+        .attr("d", d3.arc()
+            // Now draw the bars using the d3 arc object
+            .innerRadius(innerRadius)
+            .outerRadius(function (d) {
+                return yScale(d['Under-five mortality rate (probability of dying by age 5 per 1000 live births)']);
+            })
+            .startAngle(function (d) {
+                return xScale(d.Country);
+            })
+            .endAngle(function (d) {
+                return xScale(d.Country) + xScale.bandwidth() + 0.001;
+            })
+            .padAngle(0.01)
+            .padRadius(innerRadius))
+        .append("svg:title")
+        .text(function (d) {return d['Under-five mortality rate (probability of dying by age 5 per 1000 live births)'];});
+
+    // Under 1 infant mortality rate bars
+    svg.append("g")
+        .selectAll("path")
+        .data(myData)
+        .enter()
+        .append("path")
+        .attr("fill", zScale('Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)'))
+        .attr("d", d3.arc()
+            // Now draw the bars using the d3 arc object
+            .innerRadius(innerRadius)
+            .outerRadius(function (d) {
+                return yScale(d['Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)']);
+            })
+            .startAngle(function (d) {
+                return xScale(d.Country);
+            })
+            .endAngle(function (d) {
+                return xScale(d.Country) + xScale.bandwidth() - 0.008;
+            })
+            .padAngle(0.01)
+            .padRadius(innerRadius))
+        .append("svg:title")
+        .text(function (d) {return d['Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)'];});
+
+    // Neonatal
+    svg.append("g")
+        .selectAll("path")
+        .data(myData)
+        .enter()
+        .append("path")
+        .attr("fill", zScale('Neonatal mortality rate (per 1000 live births)'))
+        .attr("d", d3.arc()
+            // Now draw the bars using the d3 arc object
+            .innerRadius(innerRadius)
+            .outerRadius(function (d) {
+                return yScale(d['Neonatal mortality rate (per 1000 live births)']);
+            })
+            .startAngle(function (d) {
+                return xScale(d.Country);
+            })
+            .endAngle(function (d) {
+                return xScale(d.Country) + xScale.bandwidth() - 0.015;
+            })
+            .padAngle(0.01)
+            .padRadius(innerRadius))
+        .append("svg:title")
+        .text(function (d) {
+            return d['Neonatal mortality rate (per 1000 live births)'];
+        });
+
+    // Add the country labels
+    svg.append("g")
+        .selectAll("g")
+        .data(myData)
+        .enter()
+        .append("g")
+        .attr("id", "country_legend")
+        .attr("text-anchor", function (d) {
+            return (xScale(d.Country) + xScale.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start";
+        })
+        .attr("transform", function (d) {
+            // draw the names using the x scale and circle logic for positioning
+            return "rotate(" + ((xScale(d.Country) + xScale.bandwidth() / 2) * 180 / Math.PI - 90) + ")" + "translate(" +
+                innerRadius *0.92 + ",0)";
+        })
+        .append("text")
+        .text(function (d) {
+            return (d.Abbreviation)
+        })
+        .attr("transform", function (d) {
+            return (xScale(d.Country) + xScale.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)";
+        })
+        .style("font-size", "9px")
+        .style('fill', d => cntryColors[d.Development_level])
+        .attr("alignment-baseline", "middle");
 }

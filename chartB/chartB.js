@@ -44,7 +44,7 @@ function createVis() {
         // set the ranges
         var x = d3.scaleBand()
             .range([0, width])
-            .padding(0.1);
+            .padding(0.5);
         var y = d3.scaleLinear()
             .domain([0,130])
             .range([height, 0]);

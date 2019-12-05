@@ -29,9 +29,17 @@ var svg = d3.select("#my_dataviz")
     .append("g")
     .attr("transform", "translate(" + (width / 2 + margin.left) + "," + (height / 2 + margin.top) + ")");
 
+// D3 Scales
 var xScale;
 var yScale;
 var zScale;
+
+// Define the div for the tooltip
+//  this was adapted from http://bl.ocks.org/d3noob/a22c42db65eb00d4e369
+var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
 // Columns for the mortality rates
 const mortality_columns = ["Neonatal mortality rate (per 1000 live births)",
@@ -227,13 +235,52 @@ function run() {
             .call(cntryLegends);
 
     });
+}
 
-    // Updpate the view based upon the users requests on certain parameters
-    var updateView = function(region,least_dev_country,measure1, measure2,measure3,measure4,measure5,measure6)
-    {
+/**
+ * This function is used to create a string of the measures that a country is undertaking
+ * @param d
+ */
+function findMeasures(d) {
 
+    console.log(d);
+
+    var outString = "";
+    if (d['Measure 1 - Expanded Coverage of comprehensive prenatal care'] === '1')
+        outString = "1";
+    if (d["Measure  2 - Expanded Coverage of obstetric care"] === '1') {
+        if (outString.length > 0)
+            outString = outString + ", 2";
+        else
+            outString = "2";
+    }
+    if (d['Measure 3 - Expanded Coverage of Essential post-partum and Newborn care'] === '1'){
+        if (outString.length > 0)
+            outString = outString + ", 3";
+        else
+            outString = "3";
     }
 
+    if (d['Measure 4 - Expanded access to effective contraception'] === '1'){
+        if (outString.length > 0)
+            outString = outString + ", 4";
+        else
+            outString = "4";
+    }
+    if (d['Measure 5 - Expanded Access to safe abortion care, including Post-Abortion care'] === '1'){
+        if (outString.length > 0)
+            outString = outString + ", 5";
+        else
+            outString = "5";
+    }
+    if (d['Measure 6 - Expanded Recruitment and Training of Skilled Birth Attendants'] === '1'){
+        if (outString.length > 0)
+            outString = outString + ", 6";
+        else
+            outString = "6";
+    }
+    console.log(outString);
+    return outString;
 }
 
 function drawBarsAndLabels(myData) {
@@ -353,5 +400,37 @@ function drawBarsAndLabels(myData) {
         })
         .style("font-size", "9px")
         .style('fill', d => cntryColors[d.Development_level])
-        .attr("alignment-baseline", "middle");
+        .attr("alignment-baseline", "middle")
+        .on("mouseover", function(d) {
+            // make it white & bigger
+            d3.select(this).style("fill",'white');
+            d3.select(this).style("font-size","13px");
+
+            // Build the part of the string for measures
+            var measureString = findMeasures(d);
+            if (measureString.length === 0)
+                measureString = "No Measures Undertaken";
+            else
+                measureString = "Measures Undertaken: " + measureString;
+
+            // Something about development?
+
+            // Build the overall string
+            const outString = "     " + d.Country + ", " + d.Region + ".\n       " + measureString;
+            // Make the tooltip visible
+            tooltip.transition()
+                .duration(200)
+                .style("opacity", 1);
+            tooltip	.html(outString)
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+        })
+        .on("mouseout", function(d) {
+
+            tooltip.transition()
+                .duration(500)
+                .style("opacity", 0);
+            d3.select(this).style("font-size","9px");
+            d3.select(this).style("fill",d => cntryColors[d.Development_level]);
+        });
 }

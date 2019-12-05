@@ -61,19 +61,17 @@ function filterData() {
     var localData = global_data.slice();
 
     var choices = [];
-    d3.selectAll(".myCheckbox").each(function(d){
+    d3.selectAll(".myCheckbox").each(function(){
         var cb = d3.select(this);
         if(cb.property("checked")){
             choices.push(cb.property("value"));
         }
     });
 
-    // Apply filters
+    // Apply filters for measures
     localData = localData.filter(function (country) {
-        var rv = choices.some(function (choice) {
-            return country[choice] === "1";
-        });
-        return rv;
+        // If any of the measures are not implemented by the country, remove it from the data
+        return !choices.some(choice => country[choice] === "0");
     });
 
     console.log(localData.length)

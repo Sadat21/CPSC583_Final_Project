@@ -57,18 +57,34 @@ var orderingMethod_cache = 'alphabetical';
  */
 window.onload = run();
 
-function filterData(filters) {
+function filterData() {
     var localData = global_data.slice();
 
-    // Apply filters
-    // TODO
+    var choices = [];
+    d3.selectAll(".myCheckbox").each(function(d){
+        var cb = d3.select(this);
+        if(cb.property("checked")){
+            choices.push(cb.property("value"));
+        }
+    });
 
+    // Apply filters
+    localData = localData.filter(function (country) {
+        var rv = choices.some(function (choice) {
+            return country[choice] === "1";
+        });
+        return rv;
+    });
+
+    console.log(localData.length)
 
     // Pass for categorical sorting
     updateDataSortMethod(orderingMethod_cache, localData)
 }
 
-function updateDataSortMethod(orderingMethod = orderingMethod_cache, data = global_data_cache) {
+function updateDataSortMethod(orderingMethod, data = global_data_cache) {
+    console.log(orderingMethod);
+
     orderingMethod_cache = orderingMethod;
     global_data_cache = data;
     const localData = data;
@@ -144,12 +160,18 @@ function run() {
             }
         });
 
+        // Set global data and it's cache
         global_data = data;
         global_data_cache = data;
         console.log(global_data)
 
+
+
         // Draw Bars
         drawBarsAndLabels(data);
+
+        // This sets an event listener for the checkbox
+        d3.selectAll(".myCheckbox").on("change", filterData);
 
         // Gets the y value of the lowest legend so we can position our other legends accordingly
         var lowestLegend;

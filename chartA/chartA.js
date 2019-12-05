@@ -49,40 +49,57 @@ const colorArr = [cntryColors["More dev. region"], cntryColors["Less dev. region
 
 
 var global_data;
+var global_data_cache;
+var orderingMethod_cache = 'alphabetical';
 
 /**
  * Application Entry Point
  */
 window.onload = run();
 
-function updateDataSortMethod(orderingMethod) {
+function filterData(filters) {
+    var localData = global_data.slice();
+
+    // Apply filters
+    // TODO
+
+
+    // Pass for categorical sorting
+    updateDataSortMethod(orderingMethod_cache, localData)
+}
+
+function updateDataSortMethod(orderingMethod = orderingMethod_cache, data = global_data_cache) {
+    orderingMethod_cache = orderingMethod;
+    global_data_cache = data;
+    const localData = data;
+
     switch (orderingMethod) {
         case "alphabetical":
-            global_data.sort((a, b) => a.Country.localeCompare(b.Country));
+            localData.sort((a, b) => a.Country.localeCompare(b.Country));
             break;
         case "child_mortality_rate":
-            global_data.sort((a, b) =>
+            localData.sort((a, b) =>
                 b['Under-five mortality rate (probability of dying by age 5 per 1000 live births)']
                 - a['Under-five mortality rate (probability of dying by age 5 per 1000 live births)']);
             break;
         case "infant_mortality_rate":
-            global_data.sort((a, b) =>
+            localData.sort((a, b) =>
                 b['Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)']
                 - a['Infant mortality rate (probability of dying between birth and age 1 per 1000 live births)']);
             break;
         case "neonatal_mortality_rate":
-            global_data.sort((a, b) =>
+            localData.sort((a, b) =>
                 b['Neonatal mortality rate (per 1000 live births)']
                 - a['Neonatal mortality rate (per 1000 live births)']);
             break;
         case "development":
-            global_data.sort((a, b) => a['Development_level'].localeCompare(b['Development_level']));
+            localData.sort((a, b) => a['Development_level'].localeCompare(b['Development_level']));
             break;
         case "region":
-            global_data.sort((a, b) => a.Region.localeCompare(b.Region));
+            localData.sort((a, b) => a.Region.localeCompare(b.Region));
             break;
         default:
-            global_data.sort((a, b) => a.Country.localeCompare(b.Country));
+            localData.sort((a, b) => a.Country.localeCompare(b.Country));
     }
 
     // Remove old bars
@@ -94,7 +111,7 @@ function updateDataSortMethod(orderingMethod) {
     svg.selectAll("#country_legend").remove().exit();
 
     // Draw new Bars and Labels
-    drawBarsAndLabels(global_data)
+    drawBarsAndLabels(localData)
 }
 
 // main entry point
@@ -128,6 +145,7 @@ function run() {
         });
 
         global_data = data;
+        console.log(global_data)
 
         // Draw Bars
         drawBarsAndLabels(data);

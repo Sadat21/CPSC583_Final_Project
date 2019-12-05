@@ -145,6 +145,7 @@ function run() {
         });
 
         global_data = data;
+        global_data_cache = data;
         console.log(global_data)
 
         // Draw Bars

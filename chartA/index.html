@@ -20,28 +20,30 @@
     </div>
 
 <!--    TODO: Remove (This is for testing)-->
-    <div class='radio fixed-top'>
+    <div class='text-center sticky-top'>
         <label class='radio-inline'>
-            <input type="radio" name="ordering" value="alphabetical" onclick='updateDataSortMethod(this.value)' checked> alphabetical
+            <h5 style="display:inline; color:red"><b> Sort: </b></h5>
+            <input type="radio" name="ordering" value="alphabetical" onclick='updateDataSortMethod(this.value)' checked> Alphabetical
         </label>
         <label class='radio-inline'>
-            <input type="radio" name="ordering" value="region" onclick='updateDataSortMethod(this.value)'> region
+            <input type="radio" name="ordering" value="region" onclick='updateDataSortMethod(this.value)'> Region - Alphabetical
         </label>
         <label class='radio-inline'>
-            <input type="radio" name="ordering" value="development" onclick='updateDataSortMethod(this.value)'> development
+            <input type="radio" name="ordering" value="development" onclick='updateDataSortMethod(this.value)'> Development
         </label>
         <label class='radio-inline'>
-            <input type="radio" name="ordering" value="child_mortality_rate" onclick='updateDataSortMethod(this.value)'> child mortality
+            <input type="radio" name="ordering" value="child_mortality_rate" onclick='updateDataSortMethod(this.value)'> Child Mortality
         </label>
         <label class='radio-inline'>
-            <input type="radio" name="ordering" value="infant_mortality_rate" onclick='updateDataSortMethod(this.value)'> infant mortality
+            <input type="radio" name="ordering" value="infant_mortality_rate" onclick='updateDataSortMethod(this.value)'> Infant Mortality
         </label>
         <label class='radio-inline'>
-            <input type="radio" name="ordering" value="neonatal_mortality_rate" onclick='updateDataSortMethod(this.value)'> neonatal mortality
+            <input type="radio" name="ordering" value="neonatal_mortality_rate" onclick='updateDataSortMethod(this.value)'> Neonatal Mortality
         </label>
 
         <br>
         <label>
+            <h5 style="display:inline; color:red"><b> Filter to keep only: </b></h5>
             <input type="checkbox" class="myCheckbox" value="Measure 1 - Expanded Coverage of comprehensive prenatal care"> Measure 1
         </label>
         <label>
@@ -60,7 +62,21 @@
             <input type="checkbox" class="myCheckbox" value="Measure 6 - Expanded Recruitment and Training of Skilled Birth Attendants"> Measure 6
         </label>
     </div>
+<div class="position-relative">
+    <div class="float-left" style="position:absolute; width:25%; padding-top:22em; font-size:12px">
+        <b>Measure 1</b> - Expanded Coverage of comprehensive prenatal care <br><br><br>
+        <b>Measure 2</b> - Expanded Coverage of obstetric care <br><br><br>
+        <b>Measure 3 </b>- Expanded Coverage of Essential post-partum and Newborn care <br><br><br>
+        <b>Measure 4 </b>- Expanded access to effective contraception <br><br><br>
+        <b>Measure 5 </b>- Expanded Access to safe abortion care, including Post-Abortion care <br><br><br>
+        <b>Measure 6</b> - Expanded Recruitment and Training of Skilled Birth Attendants <br><br>
+    </div>
 
+    <div class="float-right" style="position:absolute; right:0; padding-top:18em; width:25%">
+
+    </div>
+
+</div>
     <!-- Create a div where the graph will take place -->
     <div id="my_dataviz" class="datadis"></div>
     <script src = "chartA.js" type="text/javascript"></script>

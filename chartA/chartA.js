@@ -409,9 +409,9 @@ function drawBarsAndLabels(myData) {
             // Build the part of the string for measures
             var measureString = findMeasures(d);
             if (measureString.length === 0)
-                measureString = "No Measures Undertaken";
+                measureString = "No Measures Implemented";
             else
-                measureString = "Measures Undertaken: " + measureString;
+                measureString = "Measures Implemented: " + measureString;
 
             // Something about development?
 
